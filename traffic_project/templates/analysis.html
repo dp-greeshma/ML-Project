@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block body %}
+<h1>Traffic Analysis</h1>
+<div class="grid4">
+<div class="card"><h4>Records</h4><div class="num">{{ m.stats.rows }}</div></div>
+<div class="card"><h4>Avg speed</h4><div class="num">{{ m.stats.avg_speed or '—' }}</div></div>
+<div class="card"><h4>Avg volume</h4><div class="num">{{ m.stats.avg_volume or '—' }}</div></div>
+<div class="card"><h4>Roads</h4><div class="num">{{ m.stats.roads }}</div></div></div>
+<div class="grid2">
+<div class="card"><h3>Congestion distribution</h3><canvas id="dist"></canvas></div>
+<div class="card"><h3>Traffic volume by hour</h3><canvas id="hourly"></canvas></div>
+<div class="card"><h3>Average congestion risk by area (0=Low … 3=Severe)</h3><canvas id="area"></canvas></div>
+<div class="card"><h3>Most influential factors</h3><canvas id="imp"></canvas></div></div>
+{% endblock %}
+{% block scripts %}<script>
+const M={{ m|tojson }};
+barChart('dist',M.classes,M.stats.distribution,'records');
+lineChart('hourly',M.stats.hourly_labels,M.stats.hourly_values,'Avg volume');
+barChart('area',Object.keys(M.stats.area_severity),Object.values(M.stats.area_severity),'risk',true);
+const imp=Object.entries(M.importance).slice(0,8);
+barChart('imp',imp.map(x=>x[0]),imp.map(x=>x[1]),'importance',true);
+</script>{% endblock %}

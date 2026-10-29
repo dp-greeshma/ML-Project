@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block body %}
+<h1>About the Project</h1>
+<div class="card"><h3>Smart Traffic Congestion Prediction and Route Recommendation Using Explainable Machine Learning</h3>
+<p>Predicts congestion (Low / Medium / High / Severe) from historical traffic data, explains the main factors, raises alerts and suggests alternative roads.</p>
+<h4>Pipeline</h4><p>Cleaning → duplicate removal → encoding → feature engineering → train/test split → Decision Tree, Random Forest, XGBoost → evaluation → best model deployed in Flask.</p>
+<h4>Explainability</h4><p>Global: model feature importance. Per-prediction: each input is reset to a typical value and the change in predicted risk is shown.</p>
+<h4>Data-leakage handling</h4><p>Traffic Volume, Average Speed, Travel Time Index and Road Capacity Utilization are excluded from the model because they describe congestion itself. Reported accuracy ({{ (m.models[m.best_model].accuracy*100)|round(1) }}%) is measured without them.</p>
+<h4>Limitations</h4>
+<p>• Not real-time: no live traffic feed is connected.<br>• Route suggestions are model/system suggestions, not navigation instructions; they compare roads in the dataset using the same time and weather, with no map or distance data.<br>• Accuracy depends on the dataset used.</p>
+<p><small>Tech: Python, Pandas, NumPy, Scikit-learn, XGBoost, Matplotlib, Seaborn, Flask, HTML, CSS, JavaScript.</small></p></div>
+{% endblock %}

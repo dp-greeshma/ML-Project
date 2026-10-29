@@ -1,0 +1,32 @@
+{% extends "base.html" %}{% block body %}
+<h1>Traffic Prediction</h1>
+<div class="grid2">
+<form id="f" class="card" onsubmit="return runPredict(event)">
+  <h3>Enter traffic conditions</h3>
+  <label>Area</label><select id="area">{% for a in opts.roads %}<option>{{ a }}</option>{% endfor %}</select>
+  <label>Road / Intersection</label><select name="road" id="road"></select>
+  <div class="row"><div><label>Hour (0-23)</label><input type="number" name="hour" min="0" max="23" value="8"></div>
+  <div><label>Day of week</label><select name="day_of_week">{% for d in ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] %}<option value="{{ loop.index0 }}">{{ d }}</option>{% endfor %}</select></div></div>
+  <label>Weather</label><select name="weather">{% for w in opts.weather %}<option>{{ w }}</option>{% endfor %}</select>
+  <div class="row"><div><label>Incident reports</label><input type="number" name="incidents" min="0" value="0"></div>
+  <div><label>Roadwork activity</label><select name="roadwork"><option>No</option><option>Yes</option></select></div></div>
+  <label>Signal compliance (%)</label><input type="number" name="compliance" value="{{ opts.defaults.Traffic_Signal_Compliance|round(0) }}">
+  <label>Parking usage (%)</label><input type="number" name="parking" value="{{ opts.defaults.Parking_Usage|round(0) }}">
+  <label>Public transport usage (%)</label><input type="number" name="pt_usage" value="{{ opts.defaults.Public_Transport_Usage|round(0) }}">
+  <label>Pedestrian/cyclist count</label><input type="number" name="pedestrians" value="{{ opts.defaults.Pedestrian_and_Cyclist_Count|round(0) }}">
+  <label>Environmental impact index</label><input type="number" name="environment" value="{{ opts.defaults.Environmental_Impact|round(0) }}">
+  <button class="btn">Predict Congestion</button>
+</form>
+<div id="out" class="hidden">
+  <div class="card"><h3>Result</h3><span id="lvl" class="badge big"></span><div id="alert" class="alert"></div></div>
+  <div class="card"><h3>Probability per class</h3><canvas id="p"></canvas></div>
+  <div class="card"><h3>Why this prediction? (explainable AI)</h3><canvas id="fx"></canvas>
+    <small>Red bars push congestion up, green bars push it down, compared with typical conditions.</small></div>
+  <div class="card" id="routeBox"></div>
+</div></div>
+{% endblock %}
+{% block scripts %}<script>
+const ROADS={{ opts.roads|tojson }};
+setupRoads('area','road',ROADS);
+function runPredict(e){e.preventDefault();showResult(new FormData(document.getElementById('f')));return false;}
+</script>{% endblock %}

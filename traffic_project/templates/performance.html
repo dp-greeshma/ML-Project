@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% block body %}
+<h1>Model Performance</h1>
+<div class="card"><h3>Comparison (weighted averages, test set)</h3>
+<table><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
+{% for n,v in m.models.items() %}<tr class="{{ 'best' if n==m.best_model }}"><td>{{ n }}{{ ' ★' if n==m.best_model }}</td>
+<td>{{ (v.accuracy*100)|round(1) }}%</td><td>{{ (v.precision*100)|round(1) }}%</td><td>{{ (v.recall*100)|round(1) }}%</td><td>{{ (v.f1*100)|round(1) }}%</td></tr>{% endfor %}</table></div>
+<div class="grid2">
+<div class="card"><h3>Metric comparison</h3><canvas id="cmp"></canvas></div>
+<div class="card"><h3>Confusion matrix — {{ m.best_model }}</h3>
+<img class="plot" src="{{ url_for('static', filename='plots/cm_'+m.best_model.replace(' ','_').lower()+'.png') }}"></div>
+<div class="card"><h3>Feature importance ({{ m.best_model }})</h3><canvas id="imp"></canvas></div>
+<div class="card"><h3>Data-leakage check</h3>
+{% if m.leakage.dropped_columns %}
+<p>Columns <b>{{ m.leakage.dropped_columns|join(', ') }}</b> directly measure congestion, so they were <b>excluded</b> from training.</p>
+<p>Accuracy if they were wrongly included: <b>{{ (m.leakage.accuracy_WITH_leaky_columns*100)|round(1) }}%</b> (misleading).<br>
+Honest accuracy without them: <b>{{ (m.leakage.accuracy_WITHOUT_leaky_columns_best*100)|round(1) }}%</b>.</p>
+<p>Single-column accuracy: {% for k,v in m.leakage.single_column_accuracy.items() %}{{ k }} {{ (v*100)|round(0) }}%{{ ', ' if not loop.last }}{% endfor %}</p>
+{% else %}<p>No leaky columns found in this dataset.</p>{% endif %}</div>
+</div>
+<div class="grid3">{% for n in m.confusion %}<div class="card"><h4>{{ n }}</h4>
+<img class="plot" src="{{ url_for('static', filename='plots/cm_'+n.replace(' ','_').lower()+'.png') }}"></div>{% endfor %}</div>
+{% endblock %}
+{% block scripts %}<script>
+const M={{ m|tojson }};
+const ks=['accuracy','precision','recall','f1'];
+new Chart('cmp',{type:'bar',data:{labels:Object.keys(M.models),datasets:ks.map((k,i)=>({label:k,data:Object.values(M.models).map(v=>v[k]),backgroundColor:['#3b82f6','#10b981','#f59e0b','#8b5cf6'][i]}))},options:{scales:{y:{min:0,max:1}}}});
+const imp=Object.entries(M.importance).slice(0,10);
+barChart('imp',imp.map(x=>x[0]),imp.map(x=>x[1]),'importance',true);
+</script>{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block body %}
+<h1>Route Recommendation</h1>
+<div class="grid2">
+<form id="f" class="card" onsubmit="return runPredict(event)">
+  <h3>Your road and conditions</h3>
+  <label>Area</label><select id="area">{% for a in opts.roads %}<option>{{ a }}</option>{% endfor %}</select>
+  <label>Road / Intersection</label><select name="road" id="road"></select>
+  <div class="row"><div><label>Hour</label><input type="number" name="hour" min="0" max="23" value="18"></div>
+  <div><label>Day</label><select name="day_of_week">{% for d in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}<option value="{{ loop.index0 }}">{{ d }}</option>{% endfor %}</select></div></div>
+  <label>Weather</label><select name="weather">{% for w in opts.weather %}<option>{{ w }}</option>{% endfor %}</select>
+  <div class="row"><div><label>Incidents</label><input type="number" name="incidents" min="0" value="3"></div>
+  <div><label>Roadwork</label><select name="roadwork"><option>Yes</option><option>No</option></select></div></div>
+  <button class="btn">Find alternatives</button>
+</form>
+<div id="out" class="hidden"><div class="card"><h3>Predicted level on selected road</h3><span id="lvl" class="badge big"></span><div id="alert" class="alert"></div></div>
+<div class="card" id="routeBox"></div>
+<div class="card hidden"><canvas id="p"></canvas><canvas id="fx"></canvas></div></div></div>
+{% endblock %}
+{% block scripts %}<script>
+setupRoads('area','road',{{ opts.roads|tojson }});
+function runPredict(e){e.preventDefault();showResult(new FormData(document.getElementById('f')));return false;}
+</script>{% endblock %}

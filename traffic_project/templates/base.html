@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Smart Traffic AI{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head><body>
+<nav class="sidebar">
+  <div class="brand">🚦 Smart Traffic AI</div>
+  <a class="{{ 'on' if active=='home' }}" href="/">Dashboard</a>
+  <a class="{{ 'on' if active=='predict' }}" href="/predict">Traffic Prediction</a>
+  <a class="{{ 'on' if active=='performance' }}" href="/performance">Model Performance</a>
+  <a class="{{ 'on' if active=='analysis' }}" href="/analysis">Traffic Analysis</a>
+  <a class="{{ 'on' if active=='routes' }}" href="/routes">Route Recommendation</a>
+  <a class="{{ 'on' if active=='about' }}" href="/about">About Project</a>
+</nav>
+<main class="content">
+  <div class="notice">Predictions are based on historical patterns, not live traffic data.</div>
+  {% block body %}{% endblock %}
+</main>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body></html>

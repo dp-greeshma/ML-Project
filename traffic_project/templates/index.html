@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% block body %}
+<h1>Traffic Dashboard</h1>
+<div class="grid4">
+  <div class="card"><h4>Estimated congestion (hour {{ snap.hour }}:00)</h4>
+    <span class="badge {{ snap.level }} big">{{ snap.level }}</span>
+    <small>Average across monitored roads, typical conditions (scenario, not live)</small></div>
+  <div class="card"><h4>Records analysed</h4><div class="num">{{ m.stats.rows }}</div></div>
+  <div class="card"><h4>Areas / Roads</h4><div class="num">{{ m.stats.areas }} / {{ m.stats.roads }}</div></div>
+  <div class="card"><h4>Best model</h4><div class="num">{{ m.best_model }}</div>
+    <small>Accuracy {{ (m.models[m.best_model].accuracy*100)|round(1) }}%</small></div>
+</div>
+<div class="grid2">
+  <div class="card"><h3>Congestion probability</h3><canvas id="prob"></canvas></div>
+  <div class="card"><h3>Congestion distribution</h3><canvas id="dist"></canvas></div>
+  <div class="card"><h3>Traffic volume by hour</h3><canvas id="hourly"></canvas></div>
+  <div class="card"><h3>Model comparison (F1)</h3><canvas id="cmp"></canvas></div>
+  <div class="card"><h3>Top feature importance</h3><canvas id="imp"></canvas></div>
+  <div class="card"><h3>Traffic alerts (this hour, scenario)</h3>
+    {% for a in snap.alerts %}<div class="alert {{ a.level }}"><b>{{ a.road }}</b> — {{ a.level }} (risk {{ a.score }})</div>{% endfor %}</div>
+</div>
+{% endblock %}
+{% block scripts %}<script>
+const M={{ m|tojson }}, S={{ snap|tojson }};
+barChart('prob',Object.keys(S.probabilities),Object.values(S.probabilities),'%');
+barChart('dist',M.classes,M.stats.distribution,'records');
+lineChart('hourly',M.stats.hourly_labels,M.stats.hourly_values,'Avg volume');
+barChart('cmp',Object.keys(M.models),Object.values(M.models).map(x=>x.f1),'F1');
+const imp=Object.entries(M.importance).slice(0,8);
+barChart('imp',imp.map(x=>x[0]),imp.map(x=>x[1]),'importance',true);
+</script>{% endblock %}
